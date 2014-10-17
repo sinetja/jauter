@@ -6,8 +6,8 @@ public class Routed<T> {
   public final Map<String, String> params;
   public final T target;
 
-  public Routed(Map<String, String> params, T target) {
-    this.params = params;
+  public Routed(T target, Map<String, String> params) {
     this.target = target;
+    this.params = params;
   }
 }

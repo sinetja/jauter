@@ -9,3 +9,5 @@ scalaVersion := "2.11.2"
 autoScalaLibrary := false
 
 javacOptions ++= Seq("-source", "1.5", "-target", "1.5", "-Xlint:deprecation")
+
+libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.1" % "test"

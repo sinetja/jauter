@@ -34,7 +34,7 @@ public class Router<T> {
       }
 
       if (matched) {
-        routed = new Routed<T>(params, patterns.get(pattern));
+        routed = new Routed<T>(patterns.get(pattern), params);
         break;
       }
     }
