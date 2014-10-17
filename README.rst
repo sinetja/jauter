@@ -25,8 +25,8 @@ Add rules
 
 ::
 
-  router.pattern("/articles",     MyArticleIndex.class)
-  router.pattern("/articles/:id", MyArticleShow.class)
+  router.pattern("/articles",     MyArticleIndex.class);
+  router.pattern("/articles/:id", MyArticleShow.class);
 
 The router only cares about the path, not HTTP method.
 You should create a router for each HTTP method.
