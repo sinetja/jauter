@@ -1,5 +1,7 @@
 This tiny Java library is intended for use together with an HTTP server side
-library (like Netty), to route a path to a target.
+library like Netty, to route a path to a target.
+
+If you want to use with Netty, see `netty-router <https://github.com/xitrum-framework/netty-router>`_.
 
 Use with Maven
 ~~~~~~~~~~~~~~
