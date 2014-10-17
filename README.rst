@@ -1,6 +1,17 @@
 This tiny Java library is intended for use together with an HTTP server side
 library (like Netty), to route a path to a target.
 
+Use with Maven
+~~~~~~~~~~~~~~
+
+::
+
+  <dependency>
+    <groupId>tv.cntt</groupId>
+    <artifactId>jauter</artifactId>
+    <version>1.0</version>
+  </dependency>
+
 Create router
 ~~~~~~~~~~~~~
 
