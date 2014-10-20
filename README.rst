@@ -30,9 +30,9 @@ Add routing rules
 
 ::
 
-  router.pattern("/articles",             MyArticleIndex.class);
-  router.pattern("/articles/:id",         MyArticleShow.class);
-  router.pattern("/articles/:id.:format", MyArticleShow.class);
+  router.pattern("/articles",     MyArticleIndex.class);
+  router.pattern("/articles/:id", MyArticleShow.class);
+  router.pattern("/download/:*",  MyDownload.class);  // ":*" must be the last
 
 The router only cares about the path, not HTTP method.
 You should create a router for each HTTP method.
@@ -44,25 +44,29 @@ Match route
 
   import jauter.Routed;
 
-  // routed.target will be MyArticleShow.class.
-  // routed.params will be a map of "id" -> "123".
-  Routed routed = router.route("/articles/123");
+  Routed routed1 = router.route("/articles/123");
+  // routed1.target => MyArticleShow.class
+  // routed1.params => Map "id" -> "123"
 
-  // routed.target will be MyArticleShow.class.
-  // routed.params will be a map of "id" -> "123", "format" -> "json".
-  Routed routed = router.route("/articles/123.json");
+  Routed routed2 = router.route("/download/foo/bar.png");
+  // routed2.target => MyDownload.class
+  // routed2.params => Map of "*" -> "foo/bar.png"
+
+  Routed routed3 = router.route("/noexist");
+  // => null
 
 You should pass only the path part of the request URL to ``route``.
 Do not pass ``/articles/123?foo=bar`` or ``http://example.com/articles/123`` etc.
 
-Create reverse route
-~~~~~~~~~~~~~~~~~~~~
+Create path (reverse routing)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Without params:
 
 ::
 
   router.path(MyArticleIndex.class)  // => "/articles"
+  router.path(NoExist.class)         // => null
 
 With params:
 
@@ -76,12 +80,12 @@ With params (more convenient):
 
 ::
 
-  router.path(MyArticleShow.class, "id", 123)                    // => "/articles/123"
-  router.path(MyArticleShow.class, "id", 123, "format", "json")  // => "/articles/123.json"
+  router.path(MyArticleShow.class, "id", 123)     // => "/articles/123"
+  router.path(MyDownload.class,    "foo/bar.png") // => "/download/foo/bar.png"
 
 Additional params will be put to the query part:
 
 ::
 
-  router.path(MyArticleIndex.class, "x", 1, "y", 2)          // => "/articles?x=1&y=2"
-  router.path(MyArticleShow.class, "id", 123, "foo", "bar")  // => "/articles/123?foo=bar"
+  router.path(MyArticleIndex.class, "x", 1, "y", 2)              // => "/articles?x=1&y=2"
+  router.path(MyArticleShow.class, "id", 123, "format", "json")  // => "/articles/123?format=json"
