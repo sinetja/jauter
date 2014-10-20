@@ -1,17 +1,21 @@
 package jauter;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class Router<T> {
-  private Map<String[], T>              patterns = new HashMap<String[], T>();
-  private Map<T,        List<String[]>> reverse  = new HashMap<T, List<String[]>>();
+  private final Map<String[], T>              patterns = new HashMap<String[], T>();
+  private final Map<T,        List<String[]>> reverse  = new HashMap<T, List<String[]>>();
 
   public void pattern(String path, T target) {
-    String[] parts = path.split("/");
+    final String[] parts = path.replaceFirst("^/*", "").split("/");
     patterns.put(parts, target);
 
     List<String[]> patterns = reverse.get(target);
@@ -25,20 +29,20 @@ public class Router<T> {
   }
 
   public Routed<T> route(String path) {
-    String[]            parts   = path.split("/");
-    boolean             matched = true;
-    Map<String, String> params  = new HashMap<String, String>();
+    final String[]            parts   = path.replaceFirst("^/*", "").split("/");
+    final Map<String, String> params  = new HashMap<String, String>();
+    boolean                   matched = true;
 
-    for (Map.Entry<String[], T> entry : patterns.entrySet()) {
-      String[] currParts = entry.getKey();
-      T        target    = entry.getValue();
+    for (final Map.Entry<String[], T> entry : patterns.entrySet()) {
+      final String[] currParts = entry.getKey();
+      final T        target    = entry.getValue();
 
       matched = true;
       params.clear();
 
       if (parts.length == currParts.length) {
         for (int i = 0; i < currParts.length; i++) {
-          String token = currParts[i];
+          final String token = currParts[i];
           if (token.length() > 0 && token.charAt(0) == ':') {
             params.put(token.substring(1), parts[i]);
           } else if (!token.equals(parts[i])) {
@@ -48,7 +52,7 @@ public class Router<T> {
         }
       } else if (currParts.length > 0 && currParts[currParts.length - 1].equals(":*") && parts.length >= currParts.length) {
         for (int i = 0; i < currParts.length - 1; i++) {
-          String token = currParts[i];
+          final String token = currParts[i];
           if (token.length() > 0 && token.charAt(0) == ':') {
             params.put(token.substring(1), parts[i]);
           } else if (!token.equals(parts[i])) {
@@ -58,7 +62,7 @@ public class Router<T> {
         }
 
         if (matched) {
-          StringBuilder b = new StringBuilder(parts[currParts.length - 1]);
+          final StringBuilder b = new StringBuilder(parts[currParts.length - 1]);
           for (int i = currParts.length; i < parts.length; i++) {
             b.append('/');
             b.append(parts[i]);
@@ -75,28 +79,92 @@ public class Router<T> {
     return null;
   }
 
+  @SuppressWarnings("unchecked")
   public String path(T target, Object... params) {
     if (params.length == 0) return path(target, Collections.emptyMap());
 
+    if (params.length == 1 && params[0] instanceof Map<?, ?>) return path(target, (Map<String, Object>) params[0]);
+
     if (params.length % 2 == 1) throw new RuntimeException("Missing value for param: " + params[params.length - 1]);
 
-    Map<String, Object> map = new HashMap<String, Object>();
+    final Map<String, Object> map = new HashMap<String, Object>();
     for (int i = 0; i < params.length; i += 2) {
-      String key   = params[i].toString();
-      String value = params[i + 1].toString();
+      final String key   = params[i].toString();
+      final String value = params[i + 1].toString();
       map.put(key, value);
     }
     return path(target, map);
   }
 
   public String path(T target, Map<String, Object> params) {
-    List<String[]> patterns = reverse.get(target);
+    final List<String[]> patterns = reverse.get(target);
     if (patterns == null) return null;
 
-    for (String[] pattern : patterns) {
+    try {
+      // The best one is the one with minimum number of params in the query
+      String bestCandidate  = null;
+      int    minQueryParams = Integer.MAX_VALUE;
 
+      boolean           matched  = true;
+      final Set<String> usedKeys = new HashSet<String>();
+
+      for (final String[] pattern : patterns) {
+        matched = true;
+        usedKeys.clear();
+
+        final StringBuilder b = new StringBuilder();
+
+        for (final String token : pattern) {
+          b.append('/');
+
+          if (token.length() > 0 && token.charAt(0) == ':') {
+            final String key   = token.substring(1);
+            final Object value = params.get(key);
+            if (value == null) {
+              matched = false;
+              break;
+            }
+
+            usedKeys.add(key);
+            b.append(value.toString());
+          } else {
+            b.append(token);
+          }
+        }
+
+        if (matched) {
+          final int numQueryParams = params.size() - usedKeys.size();
+          if (numQueryParams < minQueryParams) {
+            if (numQueryParams > 0) {
+              boolean firstQueryParam = true;
+
+              for (final Map.Entry<String, Object> entry : params.entrySet()) {
+                final String key = entry.getKey();
+                if (!usedKeys.contains(key)) {
+                  if (firstQueryParam) {
+                    b.append('?');
+                    firstQueryParam = false;
+                  } else {
+                    b.append('&');
+                  }
+
+                  final String value = entry.getValue().toString();
+                  b.append(URLEncoder.encode(key, "UTF-8"));    // May throw UnsupportedEncodingException
+                  b.append('=');
+                  b.append(URLEncoder.encode(value, "UTF-8"));  // May throw UnsupportedEncodingException
+                }
+              }
+            }
+
+            bestCandidate  = b.toString();
+            minQueryParams = numQueryParams;
+          }
+        }
+      }
+
+      return bestCandidate;
+    } catch (UnsupportedEncodingException e) {
+      return null;
     }
-
-    return null;
   }
 }
