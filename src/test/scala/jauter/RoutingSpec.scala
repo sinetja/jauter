@@ -3,10 +3,10 @@ package jauter
 import org.scalatest._
 
 class RoutingSpec extends FlatSpec with Matchers {
-  val router = new Router[String]
-  router.pattern("/articles",     "index")
-  router.pattern("/articles/:id", "show")
-  router.pattern("/download/:*",  "download")
+  val router = (new Router[String])
+    .pattern("/articles",     "index")
+    .pattern("/articles/:id", "show")
+    .pattern("/download/:*",  "download")
 
   "A router" should "handle empty params" in {
     val routed = router.route("/articles")

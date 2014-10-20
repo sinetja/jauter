@@ -25,16 +25,10 @@ Create router
 
   // Create a router that routes paths to action classes.
   // This is just an example, any other target type is OK.
-  Router router = new Router<Class<? extends MyAction>>();
-
-Add routing rules
-~~~~~~~~~~~~~~~~~
-
-::
-
-  router.pattern("/articles",     MyArticleIndex.class);
-  router.pattern("/articles/:id", MyArticleShow.class);
-  router.pattern("/download/:*",  MyDownload.class);  // ":*" must be the last
+  Router router = new Router<Class<? extends MyAction>>()
+    .pattern("/download/:*",  MyDownload.class)  // ":*" must be the last in the path
+    .pattern("/articles",     MyArticleIndex.class)
+    .pattern("/articles/:id", MyArticleShow.class);
 
 The router only cares about the path, not HTTP method.
 You should create a router for each HTTP method.
@@ -47,12 +41,12 @@ Match route
   import jauter.Routed;
 
   Routed routed1 = router.route("/articles/123");
-  // routed1.target => MyArticleShow.class
-  // routed1.params => Map "id" -> "123"
+  // routed1.target() => MyArticleShow.class
+  // routed1.params() => Map "id" -> "123"
 
   Routed routed2 = router.route("/download/foo/bar.png");
-  // routed2.target => MyDownload.class
-  // routed2.params => Map of "*" -> "foo/bar.png"
+  // routed2.target() => MyDownload.class
+  // routed2.params() => Map of "*" -> "foo/bar.png"
 
   Routed routed3 = router.route("/noexist");
   // => null

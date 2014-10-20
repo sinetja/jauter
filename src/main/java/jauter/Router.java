@@ -14,7 +14,7 @@ public class Router<T> {
   private final Map<String[], T>              patterns = new HashMap<String[], T>();
   private final Map<T,        List<String[]>> reverse  = new HashMap<T, List<String[]>>();
 
-  public void pattern(String path, T target) {
+  public Router<T> pattern(String path, T target) {
     final String[] parts = path.replaceFirst("^/*", "").split("/");
     patterns.put(parts, target);
 
@@ -26,6 +26,8 @@ public class Router<T> {
     } else {
       patterns.add(parts);
     }
+
+    return this;
   }
 
   public Routed<T> route(String path) {
