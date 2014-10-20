@@ -20,15 +20,19 @@ Create router
 ::
 
   import jauter.Router;
-  Router router = new Router<Class[MyAction]>();  // Any target type will do
 
-Add rules
-~~~~~~~~~
+  // Create a router that routes paths to action classes.
+  // This is just an example, any other target type is OK.
+  Router router = new Router<Class<? extends MyAction>>();
+
+Add routing rules
+~~~~~~~~~~~~~~~~~
 
 ::
 
-  router.pattern("/articles",     MyArticleIndex.class);
-  router.pattern("/articles/:id", MyArticleShow.class);
+  router.pattern("/articles",             MyArticleIndex.class);
+  router.pattern("/articles/:id",         MyArticleShow.class);
+  router.pattern("/articles/:id.:format", MyArticleShow.class);
 
 The router only cares about the path, not HTTP method.
 You should create a router for each HTTP method.
@@ -40,14 +44,44 @@ Match route
 
   import jauter.Routed;
 
-  // routed.params will be a map of "id" -> "123".
   // routed.target will be MyArticleShow.class.
+  // routed.params will be a map of "id" -> "123".
   Routed routed = router.route("/articles/123");
 
+  // routed.target will be MyArticleShow.class.
+  // routed.params will be a map of "id" -> "123", "format" -> "json".
+  Routed routed = router.route("/articles/123.json");
+
 You should pass only the path part of the request URL to ``route``.
-Do not pass ``/articles/123?foo=bar`` or ``http://example.com/articles/123`` etc. to it.
+Do not pass ``/articles/123?foo=bar`` or ``http://example.com/articles/123`` etc.
 
 Create reverse route
 ~~~~~~~~~~~~~~~~~~~~
 
-TODO
+Without params:
+
+::
+
+  router.path(MyArticleIndex.class)  // => "/articles"
+
+With params:
+
+::
+
+  Map<String, Object> params = new HashMap<String, Object>();
+  params.put("id", 123);
+  router.path(MyArticleShow.class, params)  // => "/articles/123"
+
+With params (more convenient):
+
+::
+
+  router.path(MyArticleShow.class, "id", 123)                    // => "/articles/123"
+  router.path(MyArticleShow.class, "id", 123, "format", "json")  // => "/articles/123.json"
+
+Additional params will be put to the query part:
+
+::
+
+  router.path(MyArticleIndex.class, "x", 1, "y", 2)          // => "/articles?x=1&y=2"
+  router.path(MyArticleShow.class, "id", 123, "foo", "bar")  // => "/articles/123?foo=bar"
