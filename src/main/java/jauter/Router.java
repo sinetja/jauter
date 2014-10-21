@@ -14,6 +14,8 @@ public class Router<T> {
   private final Map<String[], T>              patterns = new HashMap<String[], T>();
   private final Map<T,        List<String[]>> reverse  = new HashMap<T, List<String[]>>();
 
+  //----------------------------------------------------------------------------
+
   public Router<T> pattern(String path, T target) {
     final String[] parts = path.replaceFirst("^/*", "").split("/");
     patterns.put(parts, target);
@@ -29,6 +31,8 @@ public class Router<T> {
 
     return this;
   }
+
+  //----------------------------------------------------------------------------
 
   public Routed<T> route(String path) {
     final String[]            parts   = path.replaceFirst("^/*", "").split("/");
@@ -81,25 +85,28 @@ public class Router<T> {
     return null;
   }
 
+  //----------------------------------------------------------------------------
+
   @SuppressWarnings("unchecked")
   public String path(T target, Object... params) {
     if (params.length == 0) return path(target, Collections.emptyMap());
 
-    if (params.length == 1 && params[0] instanceof Map<?, ?>) return path(target, (Map<String, Object>) params[0]);
+    if (params.length == 1 && params[0] instanceof Map<?, ?>) return pathMap(target, (Map<Object, Object>) params[0]);
 
     if (params.length % 2 == 1) throw new RuntimeException("Missing value for param: " + params[params.length - 1]);
 
-    final Map<String, Object> map = new HashMap<String, Object>();
+    final Map<Object, Object> map = new HashMap<Object, Object>();
     for (int i = 0; i < params.length; i += 2) {
       final String key   = params[i].toString();
       final String value = params[i + 1].toString();
       map.put(key, value);
     }
-    return path(target, map);
+    return pathMap(target, map);
   }
 
-  public String path(T target, Map<String, Object> params) {
-    final List<String[]> patterns = reverse.get(target);
+  private String pathMap(T target, Map<Object, Object> params) {
+    final List<String[]> patterns = (target instanceof Class<?>) ?
+      getPatternsByTargetClass((Class<?>) target) : reverse.get(target);
     if (patterns == null) return null;
 
     try {
@@ -140,8 +147,8 @@ public class Router<T> {
             if (numQueryParams > 0) {
               boolean firstQueryParam = true;
 
-              for (final Map.Entry<String, Object> entry : params.entrySet()) {
-                final String key = entry.getKey();
+              for (final Map.Entry<Object, Object> entry : params.entrySet()) {
+                final String key = entry.getKey().toString();
                 if (!usedKeys.contains(key)) {
                   if (firstQueryParam) {
                     b.append('?');
@@ -168,5 +175,28 @@ public class Router<T> {
     } catch (UnsupportedEncodingException e) {
       return null;
     }
+  }
+
+  /** @return null if there's no match */
+  private List<String[]> getPatternsByTargetClass(Class<?> klass) {
+    List<String[]> ret = null;
+    for (Map.Entry<T, List<String[]>> entry : reverse.entrySet()) {
+      T       key     = entry.getKey();
+      boolean matched = false;
+
+      if (key == klass) {
+        matched = true;
+      } else if (!(key instanceof Class<?>)) {
+        Class<?> keyClass = key.getClass();
+        if (klass.isAssignableFrom(keyClass)) matched = true;
+      }
+
+      if (matched) {
+        if (ret == null) ret = new ArrayList<String[]>();
+        ret.addAll(entry.getValue());
+      }
+    }
+
+    return ret;
   }
 }

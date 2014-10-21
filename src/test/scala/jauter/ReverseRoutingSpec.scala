@@ -29,4 +29,23 @@ class ReverseRoutingSpec extends FlatSpec with Matchers {
       router.path("show", Map("id" -> 123, "format" -> "json", "x" -> 1, "y" -> 2).asJava)
     )
   }
+
+  "A reverse router" should "handle class" in {
+    trait Action
+    class Index extends Action
+    class Show  extends Action
+
+    val router = new Router[Object]
+    val index  = new Index
+    router.pattern("/articles",     index)
+    router.pattern("/articles/:id", classOf[Show])
+
+    router.path(index)          should be ("/articles")
+    router.path(classOf[Index]) should be ("/articles")
+
+    router.path(new Show)                   should be (null)
+    router.path(classOf[Show], "id", "123") should be ("/articles/123")
+
+    router.path(classOf[Action]) shouldNot be (null)
+  }
 }

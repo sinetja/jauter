@@ -13,7 +13,7 @@ Use with Maven
   <dependency>
     <groupId>tv.cntt</groupId>
     <artifactId>jauter</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
   </dependency>
 
 Create router
@@ -68,7 +68,8 @@ With params:
 
 ::
 
-  Map<String, Object> params = new HashMap<String, Object>();
+  // Things in params will be converted to String
+  Map<Object, Object> params = new HashMap<Object, Object>();
   params.put("id", 123);
   router.path(MyArticleShow.class, params)  // => "/articles/123"
 
@@ -85,3 +86,20 @@ Additional params will be put to the query part:
 
   router.path(MyArticleIndex.class, "x", 1, "y", 2)              // => "/articles?x=1&y=2"
   router.path(MyArticleShow.class, "id", 123, "format", "json")  // => "/articles/123?format=json"
+
+You can specify an instance in pattern, but use the instance's class to create
+path. This feature is useful if you want to create web frameworks:
+
+::
+
+  // Optimize speed by precreating.
+  // Optimize memory by sharing for all requests.
+  MyArticleIndex cachedInstance = new MyArticleIndex();
+
+  Router router = new Router<Object>()
+    .pattern("/articles",     cachedInstance)
+    .pattern("/articles/:id", MyArticleShow.class);
+
+  // These are the same:
+  router.path(cachedInstance);
+  router.path(MyArticleIndex.class);
