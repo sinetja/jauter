@@ -5,17 +5,6 @@ This library is tiny, without additional dependencies, and is intended for use
 together with an HTTP server side library. If you want to use with
 `Netty <http://netty.io/>`_, see `netty-router <https://github.com/xitrum-framework/netty-router>`_.
 
-Use with Maven
-~~~~~~~~~~~~~~
-
-::
-
-  <dependency>
-    <groupId>tv.cntt</groupId>
-    <artifactId>jauter</artifactId>
-    <version>1.2</version>
-  </dependency>
-
 Create router
 ~~~~~~~~~~~~~
 
@@ -120,3 +109,14 @@ path. This feature is useful if you want to create web frameworks:
   // These are the same:
   router.path(cachedInstance);
   router.path(MyArticleIndex.class);
+
+Use with Maven
+~~~~~~~~~~~~~~
+
+::
+
+  <dependency>
+    <groupId>tv.cntt</groupId>
+    <artifactId>jauter</artifactId>
+    <version>1.2</version>
+  </dependency>
