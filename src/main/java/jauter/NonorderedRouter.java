@@ -6,27 +6,30 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class Router<T> {
-  private final Map<String[], T>              patterns = new HashMap<String[], T>();
-  private final Map<T,        List<String[]>> reverse  = new HashMap<T, List<String[]>>();
+public class NonorderedRouter<T> {
+  protected final List<Pattern<T>> patterns = new ArrayList<Pattern<T>>();
+
+  // Reverse index to create reverse routes fast
+  protected final Map<T, List<Pattern<T>>> reverse = new HashMap<T, List<Pattern<T>>>();
 
   //----------------------------------------------------------------------------
 
-  public Router<T> pattern(String path, T target) {
-    final String[] parts = path.replaceFirst("^/*", "").split("/");
-    patterns.put(parts, target);
+  public NonorderedRouter<T> pattern(String path, T target) {
+    final Pattern<T> pattern = new Pattern<T>(path, target);
+    patterns.add(pattern);
 
-    List<String[]> patterns = reverse.get(target);
+    List<Pattern<T>> patterns = reverse.get(target);
     if (patterns == null) {
-      patterns = new ArrayList<String[]>();
-      patterns.add(parts);
+      patterns = new ArrayList<Pattern<T>>();
+      patterns.add(pattern);
       reverse.put(target, patterns);
     } else {
-      patterns.add(parts);
+      patterns.add(pattern);
     }
 
     return this;
@@ -34,44 +37,79 @@ public class Router<T> {
 
   //----------------------------------------------------------------------------
 
+  public void removeTarget(T target) {
+    Iterator<Pattern<T>> it = patterns.iterator();
+    while (it.hasNext()) {
+      Pattern<T> pattern = it.next();
+      if (pattern.target().equals(target)) it.remove();
+    }
+
+    reverse.remove(target);
+  }
+
+  public void removePath(String path) {
+    String normalizedPath = Pattern.removeSlashAtBothEnds(path);
+
+    removePatternByPath(patterns, normalizedPath);
+
+    for (Map.Entry<T, List<Pattern<T>>> entry : reverse.entrySet()) {
+      List<Pattern<T>> patterns = entry.getValue();
+      removePatternByPath(patterns, normalizedPath);
+    }
+  }
+
+  private void removePatternByPath(List<Pattern<T>> patterns, String path) {
+    Iterator<Pattern<T>> it = patterns.iterator();
+    while (it.hasNext()) {
+      Pattern<T> pattern = it.next();
+      if (pattern.path().equals(path)) it.remove();
+    }
+  }
+
+  //----------------------------------------------------------------------------
+
   public Routed<T> route(String path) {
-    final String[]            parts   = path.replaceFirst("^/*", "").split("/");
+    final String[]            tokens  = Pattern.removeSlashAtBothEnds(path).split("/");
     final Map<String, String> params  = new HashMap<String, String>();
     boolean                   matched = true;
 
-    for (final Map.Entry<String[], T> entry : patterns.entrySet()) {
-      final String[] currParts = entry.getKey();
-      final T        target    = entry.getValue();
+    for (final Pattern<T> pattern : patterns) {
+      final String[] currTokens = pattern.tokens();
+      final T        target     = pattern.target();
 
       matched = true;
       params.clear();
 
-      if (parts.length == currParts.length) {
-        for (int i = 0; i < currParts.length; i++) {
-          final String token = currParts[i];
-          if (token.length() > 0 && token.charAt(0) == ':') {
-            params.put(token.substring(1), parts[i]);
-          } else if (!token.equals(parts[i])) {
+      if (tokens.length == currTokens.length) {
+        for (int i = 0; i < currTokens.length; i++) {
+          final String token     = tokens[i];
+          final String currToken = currTokens[i];
+
+          if (currToken.length() > 0 && currToken.charAt(0) == ':') {
+            params.put(currToken.substring(1), token);
+          } else if (!currToken.equals(token)) {
             matched = false;
             break;
           }
         }
-      } else if (currParts.length > 0 && currParts[currParts.length - 1].equals(":*") && parts.length >= currParts.length) {
-        for (int i = 0; i < currParts.length - 1; i++) {
-          final String token = currParts[i];
-          if (token.length() > 0 && token.charAt(0) == ':') {
-            params.put(token.substring(1), parts[i]);
-          } else if (!token.equals(parts[i])) {
+      } else if (currTokens.length > 0 && currTokens[currTokens.length - 1].equals(":*") && tokens.length >= currTokens.length) {
+        for (int i = 0; i < currTokens.length - 1; i++) {
+          final String token     = tokens[i];
+          final String currToken = currTokens[i];
+
+          if (currToken.length() > 0 && currToken.charAt(0) == ':') {
+            params.put(currToken.substring(1), token);
+          } else if (!token.equals(token)) {
             matched = false;
             break;
           }
         }
 
         if (matched) {
-          final StringBuilder b = new StringBuilder(parts[currParts.length - 1]);
-          for (int i = currParts.length; i < parts.length; i++) {
+          final StringBuilder b = new StringBuilder(tokens[currTokens.length - 1]);
+          for (int i = currTokens.length; i < tokens.length; i++) {
             b.append('/');
-            b.append(parts[i]);
+            b.append(tokens[i]);
           }
           params.put("*", b.toString());
         }
@@ -105,7 +143,7 @@ public class Router<T> {
   }
 
   private String pathMap(T target, Map<Object, Object> params) {
-    final List<String[]> patterns = (target instanceof Class<?>) ?
+    final List<Pattern<T>> patterns = (target instanceof Class<?>) ?
       getPatternsByTargetClass((Class<?>) target) : reverse.get(target);
     if (patterns == null) return null;
 
@@ -117,13 +155,13 @@ public class Router<T> {
       boolean           matched  = true;
       final Set<String> usedKeys = new HashSet<String>();
 
-      for (final String[] pattern : patterns) {
+      for (final Pattern<T> pattern : patterns) {
         matched = true;
         usedKeys.clear();
 
         final StringBuilder b = new StringBuilder();
 
-        for (final String token : pattern) {
+        for (final String token : pattern.tokens()) {
           b.append('/');
 
           if (token.length() > 0 && token.charAt(0) == ':') {
@@ -178,9 +216,9 @@ public class Router<T> {
   }
 
   /** @return null if there's no match */
-  private List<String[]> getPatternsByTargetClass(Class<?> klass) {
-    List<String[]> ret = null;
-    for (Map.Entry<T, List<String[]>> entry : reverse.entrySet()) {
+  private List<Pattern<T>> getPatternsByTargetClass(Class<?> klass) {
+    List<Pattern<T>> ret = null;
+    for (Map.Entry<T, List<Pattern<T>>> entry : reverse.entrySet()) {
       T       key     = entry.getKey();
       boolean matched = false;
 
@@ -192,7 +230,7 @@ public class Router<T> {
       }
 
       if (matched) {
-        if (ret == null) ret = new ArrayList<String[]>();
+        if (ret == null) ret = new ArrayList<Pattern<T>>();
         ret.addAll(entry.getValue());
       }
     }

@@ -13,7 +13,7 @@ Use with Maven
   <dependency>
     <groupId>tv.cntt</groupId>
     <artifactId>jauter</artifactId>
-    <version>1.1</version>
+    <version>1.2</version>
   </dependency>
 
 Create router
@@ -26,12 +26,29 @@ Create router
   // Create a router that routes paths to action classes.
   // This is just an example, any other target type is OK.
   Router router = new Router<Class<? extends MyAction>>()
-    .pattern("/download/:*",  MyDownload.class)  // ":*" must be the last in the path
-    .pattern("/articles",     MyArticleIndex.class)
-    .pattern("/articles/:id", MyArticleShow.class);
+    .pattern     ("/articles",     MyArticleIndex.class)
+    .pattern     ("/articles/:id", MyArticleShow.class)
+    .pattern     ("/download/:*",  MyDownload.class)      // ":*" must be the last token
+    .patternFirst("/articles/new", MyArticleNew.class)    // This will be matched first
+    .patternLast ("/:*",           My404NotFound.class);  // This will be matched last
 
 The router only cares about the path, not HTTP method.
 You should create a router for each HTTP method.
+
+Jauter ignores slashes at both ends, so these are the same:
+
+::
+
+  router.pattern("articles",   MyArticleIndex.class)
+  router.pattern("/articles",  MyArticleIndex.class)
+  router.pattern("/articles/", MyArticleIndex.class)
+
+You can remove routes by target or by path:
+
+::
+
+  router.removeTarget(MyArticleIndex.class)
+  router.removePath("/articles")
 
 Match route
 ~~~~~~~~~~~

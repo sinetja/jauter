@@ -4,9 +4,21 @@ import org.scalatest._
 
 class RoutingSpec extends FlatSpec with Matchers {
   val router = (new Router[String])
-    .pattern("/articles",     "index")
-    .pattern("/articles/:id", "show")
-    .pattern("/download/:*",  "download")
+    .pattern     ("/articles",     "index")
+    .pattern     ("/articles/:id", "show")
+    .pattern     ("/download/:*",  "download")
+    .patternFirst("/articles/new", "new")
+    .patternLast ("/:*",           "404")
+
+  "A router" should "ignore slashes at both ends" in {
+    router.route("articles").target should be ("index")
+    router.route("/articles").target should be ("index")
+    router.route("//articles").target should be ("index")
+    router.route("articles/").target should be ("index")
+    router.route("articles//").target should be ("index")
+    router.route("/articles/").target should be ("index")
+    router.route("//articles//").target should be ("index")
+  }
 
   "A router" should "handle empty params" in {
     val routed = router.route("/articles")
@@ -22,6 +34,7 @@ class RoutingSpec extends FlatSpec with Matchers {
   }
 
   "A router" should "handle none" in {
+    val router = (new Router[String]).pattern("/articles", "index")
     val routed = router.route("/noexist")
     (routed == null) should be (true)
   }
@@ -46,5 +59,30 @@ class RoutingSpec extends FlatSpec with Matchers {
     val routed2 = router.route("/articles/123")
     routed1.target should be (classOf[Index])
     routed2.target should be (classOf[Show])
+  }
+
+  "A router" should "handle order" in {
+    val routed1 = router.route("/articles/new")
+    routed1.target      should be ("new")
+    routed1.params.size should be (0)
+
+    val routed2 = router.route("/notfound")
+    routed2.target            should be ("404")
+    routed2.params.size       should be (1)
+    routed2.params().get("*") should be ("notfound")
+  }
+
+  "A router" should "handle remove by target" in {
+    val router = (new Router[String]).pattern("/articles", "index")
+    router.removeTarget("index")
+    val routed = router.route("/articles")
+    (routed == null) should be (true)
+  }
+
+  "A router" should "handle remove by path" in {
+    val router = (new Router[String]).pattern("/articles", "index")
+    router.removePath("/articles")
+    val routed = router.route("/articles")
+    (routed == null) should be (true)
   }
 }
