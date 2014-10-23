@@ -1,9 +1,13 @@
 package jauter;
 
+import java.util.Collections;
+
 public class MethodlessRouter<T> {
   protected final NonorderedRouter<T> first = new NonorderedRouter<T>();
   protected final NonorderedRouter<T> other = new NonorderedRouter<T>();
   protected final NonorderedRouter<T> last  = new NonorderedRouter<T>();
+
+  protected T notFound;
 
   //----------------------------------------------------------------------------
 
@@ -19,6 +23,11 @@ public class MethodlessRouter<T> {
 
   public MethodlessRouter<T> patternLast(String path, T target) {
     last.pattern(path, target);
+    return this;
+  }
+
+  public MethodlessRouter<T> notFound(T target) {
+    this.notFound = target;
     return this;
   }
 
@@ -45,7 +54,12 @@ public class MethodlessRouter<T> {
     ret = other.route(path);
     if (ret != null) return ret;
 
-    return last.route(path);
+    ret = last.route(path);
+    if (ret != null) return ret;
+
+    if (notFound != null) return new Routed<T>(notFound, Collections.<String, String>emptyMap());
+
+    return null;
   }
 
   public String path(T target, Object... params) {

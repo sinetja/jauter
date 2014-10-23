@@ -1,6 +1,7 @@
 package jauter;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +26,8 @@ public abstract class Router<M, T> {
   protected final MethodlessRouter<T> anyMethodRouter =
       new MethodlessRouter<T>();
 
+  protected T notFound;
+
   //----------------------------------------------------------------------------
 
   public Router<M, T> pattern(M method, String path, T target) {
@@ -39,6 +42,11 @@ public abstract class Router<M, T> {
 
   public Router<M, T> patternLast(M method, String path, T target) {
     getMethodlessRouter(method).patternLast(path, target);
+    return this;
+  }
+
+  public Router<M, T> NOT_FOUND(T target) {
+    this.notFound = target;
     return this;
   }
 
@@ -70,7 +78,13 @@ public abstract class Router<M, T> {
   public Routed<T> route(M method, String path) {
     MethodlessRouter<T> router = routers.get(method);
     if (router == null) router = anyMethodRouter;
-    return router.route(path);
+
+    Routed<T> ret = router.route(path);
+    if (ret != null) return ret;
+
+    if (notFound != null) return new Routed<T>(notFound, Collections.<String, String>emptyMap());
+
+    return null;
   }
 
   //----------------------------------------------------------------------------

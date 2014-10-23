@@ -17,6 +17,8 @@ public class NonorderedRouter<T> {
   // Reverse index to create reverse routes fast
   protected final Map<T, List<Pattern<T>>> reverse = new HashMap<T, List<Pattern<T>>>();
 
+  protected T notFound;
+
   //----------------------------------------------------------------------------
 
   public NonorderedRouter<T> pattern(String path, T target) {
@@ -32,6 +34,11 @@ public class NonorderedRouter<T> {
       patterns.add(pattern);
     }
 
+    return this;
+  }
+
+  public NonorderedRouter<T> notFound(T target) {
+    this.notFound = target;
     return this;
   }
 
@@ -118,6 +125,11 @@ public class NonorderedRouter<T> {
       }
 
       if (matched) return new Routed<T>(target, params);
+    }
+
+    if (notFound != null) {
+      params.clear();
+      return new Routed<T>(notFound, params);
     }
 
     return null;

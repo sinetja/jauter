@@ -32,11 +32,12 @@ Add routes
 
   // Below uses "Class<? extends MyAction" as target type
   router
-    .GET      ("/articles",     MyArticleIndex.class)
-    .GET      ("/articles/:id", MyArticleShow.class)
-    .GET      ("/download/:*",  MyDownload.class)      // ":*" must be the last token
-    .GET_FIRST("/articles/new", MyArticleNew.class)    // This will be matched first
-    .ANY_LAST ("/:*",           My404NotFound.class);  // This will be matched last, any method will match
+    .GET      ("/articles",      MyArticleIndex.class)
+    .GET      ("/articles/:id",  MyArticleShow.class)
+    .GET      ("/download/:*",   MyDownload.class)      // ":*" must be the last token
+    .GET_FIRST("/articles/new",  MyArticleNew.class)    // This will be matched first
+    .ANY      ("/form_or_create" MyFormOrCreate.class)  // This will match any method
+    .NOT_FOUND(My404NotFound.class);
 
 The router only cares about the path, not HTTP method.
 You should create a router for each HTTP method.
@@ -140,5 +141,5 @@ Use with Maven
   <dependency>
     <groupId>tv.cntt</groupId>
     <artifactId>jauter</artifactId>
-    <version>1.3</version>
+    <version>1.4</version>
   </dependency>
