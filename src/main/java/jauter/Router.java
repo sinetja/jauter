@@ -66,6 +66,14 @@ public abstract class Router<M, T> {
   }
 
   //----------------------------------------------------------------------------
+
+  public Routed<T> route(M method, String path) {
+    MethodlessRouter<T> router = routers.get(method);
+    if (router == null) router = anyMethodRouter;
+    return router.route(path);
+  }
+
+  //----------------------------------------------------------------------------
   // Reverse routing.
 
   public String path(M method, T target, Object... params) {
