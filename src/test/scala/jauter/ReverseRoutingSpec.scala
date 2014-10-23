@@ -4,7 +4,7 @@ import scala.collection.JavaConverters._
 import org.scalatest._
 
 class ReverseRoutingSpec extends FlatSpec with Matchers {
-  val router = new Router[String]
+  val router = new MethodlessRouter[String]
   router.pattern("/articles",             "index")
   router.pattern("/articles/:id",         "show")
   router.pattern("/articles/:id/:format", "show")
@@ -35,7 +35,7 @@ class ReverseRoutingSpec extends FlatSpec with Matchers {
     class Index extends Action
     class Show  extends Action
 
-    val router = new Router[Object]
+    val router = new MethodlessRouter[Object]
     val index  = new Index
     router.pattern("/articles",     index)
     router.pattern("/articles/:id", classOf[Show])

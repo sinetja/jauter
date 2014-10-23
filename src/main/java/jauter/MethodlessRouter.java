@@ -1,23 +1,23 @@
 package jauter;
 
-public class Router<T> {
+public class MethodlessRouter<T> {
   protected final NonorderedRouter<T> first = new NonorderedRouter<T>();
   protected final NonorderedRouter<T> other = new NonorderedRouter<T>();
   protected final NonorderedRouter<T> last  = new NonorderedRouter<T>();
 
   //----------------------------------------------------------------------------
 
-  public Router<T> pattern(String path, T target) {
+  public MethodlessRouter<T> pattern(String path, T target) {
     other.pattern(path, target);
     return this;
   }
 
-  public Router<T> patternFirst(String path, T target) {
+  public MethodlessRouter<T> patternFirst(String path, T target) {
     first.pattern(path, target);
     return this;
   }
 
-  public Router<T> patternLast(String path, T target) {
+  public MethodlessRouter<T> patternLast(String path, T target) {
     last.pattern(path, target);
     return this;
   }

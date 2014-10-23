@@ -3,7 +3,7 @@ package jauter
 import org.scalatest._
 
 class RoutingSpec extends FlatSpec with Matchers {
-  val router = (new Router[String])
+  val router = (new MethodlessRouter[String])
     .pattern     ("/articles",     "index")
     .pattern     ("/articles/:id", "show")
     .pattern     ("/download/:*",  "download")
@@ -34,7 +34,7 @@ class RoutingSpec extends FlatSpec with Matchers {
   }
 
   "A router" should "handle none" in {
-    val router = (new Router[String]).pattern("/articles", "index")
+    val router = (new MethodlessRouter[String]).pattern("/articles", "index")
     val routed = router.route("/noexist")
     (routed == null) should be (true)
   }
@@ -51,7 +51,7 @@ class RoutingSpec extends FlatSpec with Matchers {
     class Index extends Action
     class Show  extends Action
 
-    val router = new Router[Class[_ <: Action]]
+    val router = new MethodlessRouter[Class[_ <: Action]]
     router.pattern("/articles",     classOf[Index])
     router.pattern("/articles/:id", classOf[Show])
 
@@ -73,14 +73,14 @@ class RoutingSpec extends FlatSpec with Matchers {
   }
 
   "A router" should "handle remove by target" in {
-    val router = (new Router[String]).pattern("/articles", "index")
+    val router = (new MethodlessRouter[String]).pattern("/articles", "index")
     router.removeTarget("index")
     val routed = router.route("/articles")
     (routed == null) should be (true)
   }
 
   "A router" should "handle remove by path" in {
-    val router = (new Router[String]).pattern("/articles", "index")
+    val router = (new MethodlessRouter[String]).pattern("/articles", "index")
     router.removePath("/articles")
     val routed = router.route("/articles")
     (routed == null) should be (true)

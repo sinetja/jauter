@@ -12,14 +12,31 @@ Create router
 
   import jauter.Router;
 
-  // Create a router that routes paths to action classes.
-  // This is just an example, any other target type is OK.
-  Router router = new Router<Class<? extends MyAction>>()
-    .pattern     ("/articles",     MyArticleIndex.class)
-    .pattern     ("/articles/:id", MyArticleShow.class)
-    .pattern     ("/download/:*",  MyDownload.class)      // ":*" must be the last token
-    .patternFirst("/articles/new", MyArticleNew.class)    // This will be matched first
-    .patternLast ("/:*",           My404NotFound.class);  // This will be matched last
+  Router<MyMethod, MyTarget> router = new Router<MyMethod, MyTarget>() {
+    // Tell Router about your method types
+    protected MyMethod CONNECT() { return myConnectMethod; }
+    protected MyMethod DELETE()  { return myDeleteMethod ; }
+    protected MyMethod GET()     { return myGetMethod    ; }
+    protected MyMethod HEAD()    { return myHeadMethod   ; }
+    protected MyMethod OPTIONS() { return myOptionsMethod; }
+    protected MyMethod PATCH()   { return myPatchMethod  ; }
+    protected MyMethod POST()    { return myPostMethod   ; }
+    protected MyMethod PUT()     { return myPutMethod    ; }
+    protected MyMethod TRACE()   { return myTraceMethod  ; }
+  };
+
+Add routes
+~~~~~~~~~~
+
+::
+
+  // Below uses "Class<? extends MyAction" as target type
+  router
+    .GET      ("/articles",     MyArticleIndex.class)
+    .GET      ("/articles/:id", MyArticleShow.class)
+    .GET      ("/download/:*",  MyDownload.class)      // ":*" must be the last token
+    .GET_FIRST("/articles/new", MyArticleNew.class)    // This will be matched first
+    .ANY_LAST ("/:*",           My404NotFound.class);  // This will be matched last, any method will match
 
 The router only cares about the path, not HTTP method.
 You should create a router for each HTTP method.
@@ -28,9 +45,9 @@ Jauter ignores slashes at both ends, so these are the same:
 
 ::
 
-  router.pattern("articles",   MyArticleIndex.class)
-  router.pattern("/articles",  MyArticleIndex.class)
-  router.pattern("/articles/", MyArticleIndex.class)
+  router.GET("articles",   MyArticleIndex.class)
+  router.GET("/articles",  MyArticleIndex.class)
+  router.GET("/articles/", MyArticleIndex.class)
 
 You can remove routes by target or by path:
 
@@ -46,11 +63,11 @@ Match route
 
   import jauter.Routed;
 
-  Routed routed1 = router.route("/articles/123");
+  Routed routed1 = router.route(myGetMethod, "/articles/123");
   // routed1.target() => MyArticleShow.class
   // routed1.params() => Map "id" -> "123"
 
-  Routed routed2 = router.route("/download/foo/bar.png");
+  Routed routed2 = router.route(myGetMethod, "/download/foo/bar.png");
   // routed2.target() => MyDownload.class
   // routed2.params() => Map of "*" -> "foo/bar.png"
 
@@ -63,7 +80,12 @@ Do not pass ``/articles/123?foo=bar`` or ``http://example.com/articles/123`` etc
 Create path (reverse routing)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Without params:
+::
+
+  router.path(myGetMethod, MyArticleIndex.class);
+  // => "/articles"
+
+You can skip method if there's no confusion:
 
 ::
 
@@ -118,5 +140,5 @@ Use with Maven
   <dependency>
     <groupId>tv.cntt</groupId>
     <artifactId>jauter</artifactId>
-    <version>1.2</version>
+    <version>1.3</version>
   </dependency>
