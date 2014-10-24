@@ -65,15 +65,20 @@ Match route
   import jauter.Routed;
 
   Routed routed1 = router.route(myGetMethod, "/articles/123");
-  // routed1.target() => MyArticleShow.class
-  // routed1.params() => Map "id" -> "123"
+  // routed1.target()   => MyArticleShow.class
+  // routed1.notFound() => false
+  // routed1.params()   => Map "id" -> "123"
 
   Routed routed2 = router.route(myGetMethod, "/download/foo/bar.png");
-  // routed2.target() => MyDownload.class
-  // routed2.params() => Map of "*" -> "foo/bar.png"
+  // routed2.target()   => MyDownload.class
+  // routed2.notFound() => false
+  // routed2.params()   => Map of "*" -> "foo/bar.png"
 
   Routed routed3 = router.route("/noexist");
-  // => null
+  // routed3.target()   => My404NotFound.class
+  // routed3.notFound() => true
+  // routed3.params()   => Empty Map
+  // If a NOT_FOUND were not registered, routed3 will be null
 
 You should pass only the path part of the request URL to ``route``.
 Do not pass ``/articles/123?foo=bar`` or ``http://example.com/articles/123`` etc.
