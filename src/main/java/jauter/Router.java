@@ -82,7 +82,7 @@ public abstract class Router<M, T> {
     Routed<T> ret = router.route(path);
     if (ret != null) return ret;
 
-    if (notFound != null) return new Routed<T>(notFound, Collections.<String, String>emptyMap());
+    if (notFound != null) return new Routed<T>(notFound, true, Collections.<String, String>emptyMap());
 
     return null;
   }

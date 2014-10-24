@@ -124,12 +124,12 @@ public class NonorderedRouter<T> {
         matched = false;
       }
 
-      if (matched) return new Routed<T>(target, params);
+      if (matched) return new Routed<T>(target, false, params);
     }
 
     if (notFound != null) {
       params.clear();
-      return new Routed<T>(notFound, params);
+      return new Routed<T>(notFound, true, params);
     }
 
     return null;
