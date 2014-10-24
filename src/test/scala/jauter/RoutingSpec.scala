@@ -3,31 +3,26 @@ package jauter
 import org.scalatest._
 
 class RoutingSpec extends FlatSpec with Matchers {
-  val router = (new MethodlessRouter[String])
-    .pattern     ("/articles",     "index")
-    .pattern     ("/articles/:id", "show")
-    .pattern     ("/download/:*",  "download")
-    .patternFirst("/articles/new", "new")
-    .patternLast ("/:*",           "404")
+  import StringMethodRouter.router
 
   "A router" should "ignore slashes at both ends" in {
-    router.route("articles").target should be ("index")
-    router.route("/articles").target should be ("index")
-    router.route("//articles").target should be ("index")
-    router.route("articles/").target should be ("index")
-    router.route("articles//").target should be ("index")
-    router.route("/articles/").target should be ("index")
-    router.route("//articles//").target should be ("index")
+    router.route(Method.GET, "articles").target should be ("index")
+    router.route(Method.GET, "/articles").target should be ("index")
+    router.route(Method.GET, "//articles").target should be ("index")
+    router.route(Method.GET, "articles/").target should be ("index")
+    router.route(Method.GET, "articles//").target should be ("index")
+    router.route(Method.GET, "/articles/").target should be ("index")
+    router.route(Method.GET, "//articles//").target should be ("index")
   }
 
   "A router" should "handle empty params" in {
-    val routed = router.route("/articles")
+    val routed = router.route(Method.GET, "/articles")
     routed.target      should be ("index")
     routed.params.size should be (0)
   }
 
   "A router" should "handle params" in {
-    val routed = router.route("/articles/123")
+    val routed = router.route(Method.GET, "/articles/123")
     routed.target           should be ("show")
     routed.params.size      should be (1)
     routed.params.get("id") should be ("123")
@@ -40,7 +35,7 @@ class RoutingSpec extends FlatSpec with Matchers {
   }
 
   "A router" should "handle splat (wildcard)" in {
-    val routed = router.route("/download/foo/bar.png")
+    val routed = router.route(Method.GET, "/download/foo/bar.png")
     routed.target          should be ("download")
     routed.params.size     should be (1)
     routed.params.get("*") should be ("foo/bar.png")
@@ -62,14 +57,28 @@ class RoutingSpec extends FlatSpec with Matchers {
   }
 
   "A router" should "handle order" in {
-    val routed1 = router.route("/articles/new")
+    val routed1 = router.route(Method.GET, "/articles/new")
     routed1.target      should be ("new")
     routed1.params.size should be (0)
 
-    val routed2 = router.route("/notfound")
-    routed2.target            should be ("404")
-    routed2.params.size       should be (1)
-    routed2.params().get("*") should be ("notfound")
+    val routed2 = router.route(Method.GET, "/articles/123")
+    routed2.target           should be ("show")
+    routed2.params.size      should be (1)
+    routed2.params.get("id") should be ("123")
+
+    val routed3 = router.route(Method.GET, "/notfound")
+    routed3.target            should be ("404")
+    routed3.params.size       should be (0)
+  }
+
+  "A router" should "handle any method" in {
+    val routed1 = router.route(Method.GET, "/any")
+    routed1.target      should be ("any")
+    routed1.params.size should be (0)
+
+    val routed2 = router.route(Method.POST, "/any")
+    routed2.target      should be ("any")
+    routed2.params.size should be (0)
   }
 
   "A router" should "handle remove by target" in {

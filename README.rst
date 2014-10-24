@@ -12,8 +12,12 @@ Create router
 
   import jauter.Router;
 
-  Router<MyMethod, MyTarget> router = new Router<MyMethod, MyTarget>() {
-    // Tell Router about your method types
+  public class MyRouter extends Router<MyMethod, MyTarget, MyRouter> {
+    // This is to overcome method chaining inheritance problem
+    // http://stackoverflow.com/questions/1069528/method-chaining-inheritance-don-t-play-well-together-java
+    protected MyRouter getThis() { return this; }
+
+    // Tell Router about your method type
     protected MyMethod CONNECT() { return myConnectMethod; }
     protected MyMethod DELETE()  { return myDeleteMethod ; }
     protected MyMethod GET()     { return myGetMethod    ; }
@@ -25,13 +29,36 @@ Create router
     protected MyMethod TRACE()   { return myTraceMethod  ; }
   };
 
+Example:
+
+::
+
+  public enum MyMethod {
+    CONNECT, DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT, TRACE
+  }
+
+  public class MyRouter extends Router<MyMethod, Class<? extends MyAction>, MyRouter> {
+    protected MyRouter getThis() { return this; }
+
+    protected MyMethod CONNECT() { return MyMethod.CONNECT; }
+    protected MyMethod DELETE()  { return MyMethod.DELETE ; }
+    protected MyMethod GET()     { return MyMethod.GET    ; }
+    protected MyMethod HEAD()    { return MyMethod.HEAD   ; }
+    protected MyMethod OPTIONS() { return MyMethod.OPTIONS; }
+    protected MyMethod PATCH()   { return MyMethod.PATCH  ; }
+    protected MyMethod POST()    { return MyMethod.POST   ; }
+    protected MyMethod PUT()     { return MyMethod.PUT    ; }
+    protected MyMethod TRACE()   { return MyMethod.TRACE  ; }
+  }
+
+See `tests <https://github.com/sinetja/jauter/tree/master/src/test/scala/jauter>`_ for more example.
+
 Add routes
 ~~~~~~~~~~
 
 ::
 
-  // Below uses "Class<? extends MyAction" as target type
-  router
+  MyRouter router = new MyRouter()
     .GET      ("/articles",      MyArticleIndex.class)
     .GET      ("/articles/:id",  MyArticleShow.class)
     .GET      ("/download/:*",   MyDownload.class)      // ":*" must be the last token
@@ -64,17 +91,17 @@ Match route
 
   import jauter.Routed;
 
-  Routed routed1 = router.route(myGetMethod, "/articles/123");
+  Routed routed1 = router.route(GET, "/articles/123");
   // routed1.target()   => MyArticleShow.class
   // routed1.notFound() => false
   // routed1.params()   => Map "id" -> "123"
 
-  Routed routed2 = router.route(myGetMethod, "/download/foo/bar.png");
+  Routed routed2 = router.route(GET, "/download/foo/bar.png");
   // routed2.target()   => MyDownload.class
   // routed2.notFound() => false
   // routed2.params()   => Map of "*" -> "foo/bar.png"
 
-  Routed routed3 = router.route("/noexist");
+  Routed routed3 = router.route(GET, "/noexist");
   // routed3.target()   => My404NotFound.class
   // routed3.notFound() => true
   // routed3.params()   => Empty Map
@@ -88,7 +115,7 @@ Create path (reverse routing)
 
 ::
 
-  router.path(myGetMethod, MyArticleIndex.class);
+  router.path(GET, MyArticleIndex.class);
   // => "/articles"
 
 You can skip method if there's no confusion:
