@@ -15,18 +15,18 @@ Create router
   public class MyRouter extends Router<MyMethod, MyTarget, MyRouter> {
     // This is to overcome method chaining inheritance problem
     // http://stackoverflow.com/questions/1069528/method-chaining-inheritance-don-t-play-well-together-java
-    protected MyRouter getThis() { return this; }
+    @Override protected MyRouter getThis() { return this; }
 
     // Tell Router about your method type
-    protected MyMethod CONNECT() { return myConnectMethod; }
-    protected MyMethod DELETE()  { return myDeleteMethod ; }
-    protected MyMethod GET()     { return myGetMethod    ; }
-    protected MyMethod HEAD()    { return myHeadMethod   ; }
-    protected MyMethod OPTIONS() { return myOptionsMethod; }
-    protected MyMethod PATCH()   { return myPatchMethod  ; }
-    protected MyMethod POST()    { return myPostMethod   ; }
-    protected MyMethod PUT()     { return myPutMethod    ; }
-    protected MyMethod TRACE()   { return myTraceMethod  ; }
+    @Override protected MyMethod CONNECT() { return myConnectMethod; }
+    @Override protected MyMethod DELETE()  { return myDeleteMethod ; }
+    @Override protected MyMethod GET()     { return myGetMethod    ; }
+    @Override protected MyMethod HEAD()    { return myHeadMethod   ; }
+    @Override protected MyMethod OPTIONS() { return myOptionsMethod; }
+    @Override protected MyMethod PATCH()   { return myPatchMethod  ; }
+    @Override protected MyMethod POST()    { return myPostMethod   ; }
+    @Override protected MyMethod PUT()     { return myPutMethod    ; }
+    @Override protected MyMethod TRACE()   { return myTraceMethod  ; }
   };
 
 Example:
@@ -38,17 +38,17 @@ Example:
   }
 
   public class MyRouter extends Router<MyMethod, Class<? extends MyAction>, MyRouter> {
-    protected MyRouter getThis() { return this; }
+    @Override protected MyRouter getThis() { return this; }
 
-    protected MyMethod CONNECT() { return MyMethod.CONNECT; }
-    protected MyMethod DELETE()  { return MyMethod.DELETE ; }
-    protected MyMethod GET()     { return MyMethod.GET    ; }
-    protected MyMethod HEAD()    { return MyMethod.HEAD   ; }
-    protected MyMethod OPTIONS() { return MyMethod.OPTIONS; }
-    protected MyMethod PATCH()   { return MyMethod.PATCH  ; }
-    protected MyMethod POST()    { return MyMethod.POST   ; }
-    protected MyMethod PUT()     { return MyMethod.PUT    ; }
-    protected MyMethod TRACE()   { return MyMethod.TRACE  ; }
+    @Override protected MyMethod CONNECT() { return MyMethod.CONNECT; }
+    @Override protected MyMethod DELETE()  { return MyMethod.DELETE ; }
+    @Override protected MyMethod GET()     { return MyMethod.GET    ; }
+    @Override protected MyMethod HEAD()    { return MyMethod.HEAD   ; }
+    @Override protected MyMethod OPTIONS() { return MyMethod.OPTIONS; }
+    @Override protected MyMethod PATCH()   { return MyMethod.PATCH  ; }
+    @Override protected MyMethod POST()    { return MyMethod.POST   ; }
+    @Override protected MyMethod PUT()     { return MyMethod.PUT    ; }
+    @Override protected MyMethod TRACE()   { return MyMethod.TRACE  ; }
   }
 
 See `tests <https://github.com/sinetja/jauter/tree/master/src/test/scala/jauter>`_ for more example.
