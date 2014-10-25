@@ -1,9 +1,9 @@
 package jauter;
 
 public class Pattern<T> {
-  protected final String   path;
-  protected final String[] tokens;
-  protected final T        target;
+  private final String   path;
+  private final String[] tokens;
+  private final T        target;
 
   public static String removeSlashAtBothEnds(String path) {
     if (path.isEmpty()) return path;
