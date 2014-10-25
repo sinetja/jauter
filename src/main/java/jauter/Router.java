@@ -101,16 +101,16 @@ public abstract class Router<M, T, RouterLike extends Router<M, T, RouterLike>> 
     MethodlessRouter<T> router = (method == null)? anyMethodRouter : routers.get(method);
     if (router == null) router = anyMethodRouter;
 
-    String ret = router.path(target);
+    String ret = router.path(target, params);
     if (ret != null) return ret;
 
-    return (router == anyMethodRouter)? null : anyMethodRouter.path(target);
+    return (router == anyMethodRouter)? null : anyMethodRouter.path(target, params);
   }
 
   public String path(T target, Object... params) {
     Collection<MethodlessRouter<T>> rs = routers.values();
     for (MethodlessRouter<T> r : rs) {
-      String ret = r.path(target);
+      String ret = r.path(target, params);
       if (ret != null) return ret;
     }
     return anyMethodRouter.path(target, params);

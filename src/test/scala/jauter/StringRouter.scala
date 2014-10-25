@@ -21,13 +21,14 @@ class StringRouter extends Router[Method.Value, String, StringRouter] {
 
 object StringMethodRouter {
   val router = (new StringRouter)
-    .GET      ("/articles",     "index")
-    .GET      ("/articles/:id", "show")
-    .GET_FIRST("/articles/new", "new")
-    .POST     ("/articles",     "post")
-    .PATCH    ("/articles/:id", "patch")
-    .DELETE   ("/articles/:id", "delete")
-    .ANY      ("/any",          "any")
-    .GET      ("/download/:*",  "download")
+    .GET      ("/articles",             "index")
+    .GET      ("/articles/:id",         "show")
+    .GET      ("/articles/:id/:format", "show")
+    .GET_FIRST("/articles/new",         "new")
+    .POST     ("/articles",             "post")
+    .PATCH    ("/articles/:id",         "patch")
+    .DELETE   ("/articles/:id",         "delete")
+    .ANY      ("/any",                  "any")
+    .GET      ("/download/:*",          "download")
     .NOT_FOUND("404")
 }
