@@ -5,6 +5,8 @@ This library is tiny, without additional dependencies, and is intended for use
 together with an HTTP server side library. If you want to use with
 `Netty <http://netty.io/>`_, see `netty-router <https://github.com/sinetja/netty-router>`_.
 
+`Javadoc <http://sinetja.github.io/jauter>`_
+
 Create router
 ~~~~~~~~~~~~~
 
