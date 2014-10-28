@@ -67,7 +67,7 @@ Add routes
     .GET      ("/download/:*",   MyDownload.class)      // ":*" must be the last token
     .GET_FIRST("/articles/new",  MyArticleNew.class)    // This will be matched first
     .ANY      ("/form_or_create" MyFormOrCreate.class)  // This will match any method
-    .NOT_FOUND(My404NotFound.class);
+    .notFound (My404NotFound.class);
 
 The router only cares about the path, not HTTP method.
 You should create a router for each HTTP method.
@@ -108,7 +108,7 @@ Match route
   // routed3.target()   => My404NotFound.class
   // routed3.notFound() => true
   // routed3.params()   => Empty Map
-  // If a NOT_FOUND were not registered, routed3 will be null
+  // If a notFound were not registered, routed3 will be null
 
 You should pass only the path part of the request URL to ``route``.
 Do not pass ``/articles/123?foo=bar`` or ``http://example.com/articles/123`` etc.
@@ -176,5 +176,5 @@ Use with Maven
   <dependency>
     <groupId>tv.cntt</groupId>
     <artifactId>jauter</artifactId>
-    <version>1.6</version>
+    <version>1.7</version>
   </dependency>

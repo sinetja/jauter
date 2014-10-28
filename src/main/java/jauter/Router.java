@@ -48,7 +48,7 @@ public abstract class Router<M, T, RouterLike extends Router<M, T, RouterLike>> 
     return getThis();
   }
 
-  public RouterLike NOT_FOUND(T target) {
+  public RouterLike notFound(T target) {
     this.notFound = target;
     return getThis();
   }

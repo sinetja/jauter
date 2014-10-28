@@ -87,8 +87,8 @@ public abstract class DualRouter<M, T, RouterLike extends DualRouter<M, T, Route
     return getThis();
   }
 
-  public RouterLike NOT_FOUND(T target) {
-    router.NOT_FOUND(target);
+  public RouterLike notFound(T target) {
+    router.notFound(target);
     return getThis();
   }
 
@@ -262,8 +262,8 @@ public abstract class DualRouter<M, T, RouterLike extends DualRouter<M, T, Route
     return getThis();
   }
 
-  public RouterLike NOT_FOUND(Class<? extends T> target) {
-    router.NOT_FOUND(target);
+  public RouterLike notFound(Class<? extends T> target) {
+    router.notFound(target);
     return getThis();
   }
 
