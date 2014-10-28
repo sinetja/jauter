@@ -24,4 +24,32 @@ public class Routed<T> {
   public Map<String, String> params() {
     return params;
   }
+
+  /**
+   * When target is a class, this method calls "newInstance" on the class.
+   * Otherwise it returns the target as is.
+   *
+   * @return null if target is null
+   */
+  public static Object instanceFromTarget(Object target) throws InstantiationException, IllegalAccessException {
+    if (target == null) return null;
+
+    if (target instanceof Class) {
+      // Create handler from class
+      Class<?> klass = (Class<?>) target;
+      return klass.newInstance();
+    } else {
+      return target;
+    }
+  }
+
+  /**
+   * When target is a class, this method calls "newInstance" on the class.
+   * Otherwise it returns the target as is.
+   *
+   * @return null if target is null
+   */
+  public Object instanceFromTarget() throws InstantiationException, IllegalAccessException {
+    return Routed.instanceFromTarget(target());
+  }
 }
