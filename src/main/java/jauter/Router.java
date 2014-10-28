@@ -5,7 +5,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-// http://stackoverflow.com/questions/1069528/method-chaining-inheritance-don-t-play-well-together-java
+/**
+ * http://stackoverflow.com/questions/1069528/method-chaining-inheritance-don-t-play-well-together-java
+ */
 public abstract class Router<M, T, RouterLike extends Router<M, T, RouterLike>> {
   protected abstract RouterLike getThis();
 

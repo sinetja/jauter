@@ -176,5 +176,5 @@ Use with Maven
   <dependency>
     <groupId>tv.cntt</groupId>
     <artifactId>jauter</artifactId>
-    <version>1.5</version>
+    <version>1.6</version>
   </dependency>
