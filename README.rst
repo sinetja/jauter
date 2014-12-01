@@ -96,8 +96,7 @@ Create path (reverse routing)
 
 ::
 
-  router.path(GET, MyArticleIndex.class);
-  // => "/articles"
+  router.path(GET, MyArticleIndex.class);  // => "/articles"
 
 You can skip method if there's no confusion:
 
