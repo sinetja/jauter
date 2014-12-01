@@ -6,6 +6,8 @@ together with an HTTP server side library. If you want to use with
 `Netty <http://netty.io/>`_, see `Netty-Router <https://github.com/sinetja/netty-router>`_
 and `Sinetja <https://github.com/sinetja/sinetja>`_.
 
+See `tests <https://github.com/sinetja/jauter/tree/master/src/test/scala/jauter>`_ for examples.
+
 `Javadoc <http://sinetja.github.io/jauter>`_
 
 Create router
@@ -13,34 +15,15 @@ Create router
 
 ::
 
-  import jauter.Router;
-
-  public class MyRouter extends Router<MyMethod, MyTarget, MyRouter> {
-    // This is to overcome method chaining inheritance problem
-    // http://stackoverflow.com/questions/1069528/method-chaining-inheritance-don-t-play-well-together-java
-    @Override protected MyRouter getThis() { return this; }
-
-    // Tell Router about your method type
-    @Override protected MyMethod CONNECT() { return myConnectMethod; }
-    @Override protected MyMethod DELETE()  { return myDeleteMethod ; }
-    @Override protected MyMethod GET()     { return myGetMethod    ; }
-    @Override protected MyMethod HEAD()    { return myHeadMethod   ; }
-    @Override protected MyMethod OPTIONS() { return myOptionsMethod; }
-    @Override protected MyMethod PATCH()   { return myPatchMethod  ; }
-    @Override protected MyMethod POST()    { return myPostMethod   ; }
-    @Override protected MyMethod PUT()     { return myPutMethod    ; }
-    @Override protected MyMethod TRACE()   { return myTraceMethod  ; }
-  };
-
-Example:
-
-::
-
+  // Tell Router about your method type.
+  // This example uses enum for simplicity.
   public enum MyMethod {
     CONNECT, DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT, TRACE
   }
 
   public class MyRouter extends Router<MyMethod, Class<? extends MyAction>, MyRouter> {
+    // This is to overcome method chaining inheritance problem
+    // http://stackoverflow.com/questions/1069528/method-chaining-inheritance-don-t-play-well-together-java
     @Override protected MyRouter getThis() { return this; }
 
     @Override protected MyMethod CONNECT() { return MyMethod.CONNECT; }
@@ -53,8 +36,6 @@ Example:
     @Override protected MyMethod PUT()     { return MyMethod.PUT    ; }
     @Override protected MyMethod TRACE()   { return MyMethod.TRACE  ; }
   }
-
-See `tests <https://github.com/sinetja/jauter/tree/master/src/test/scala/jauter>`_ for more example.
 
 Add routes
 ~~~~~~~~~~
@@ -69,10 +50,7 @@ Add routes
     .ANY      ("/form_or_create" MyFormOrCreate.class)  // This will match any method
     .notFound (My404NotFound.class);
 
-The router only cares about the path, not HTTP method.
-You should create a router for each HTTP method.
-
-Jauter ignores slashes at both ends, so these are the same:
+Jauter ignores slashes at both ends, these are the same:
 
 ::
 
