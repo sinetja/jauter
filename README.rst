@@ -43,11 +43,11 @@ Add routes
 ::
 
   MyRouter router = new MyRouter()
-    .GET      ("/articles",      MyArticleIndex.class)
-    .GET      ("/articles/:id",  MyArticleShow.class)
-    .GET      ("/download/:*",   MyDownload.class)      // ":*" must be the last token
-    .GET_FIRST("/articles/new",  MyArticleNew.class)    // This will be matched first
-    .ANY      ("/form_or_create" MyFormOrCreate.class)  // This will match any method
+    .GET      ("/articles",       MyArticleIndex.class)
+    .GET      ("/articles/:id",   MyArticleShow.class)
+    .GET      ("/download/:*",    MyDownload.class)      // ":*" must be the last token
+    .GET_FIRST("/articles/new",   MyArticleNew.class)    // This will be matched first
+    .ANY      ("/form_or_create", MyFormOrCreate.class)  // This will match any method
     .notFound (My404NotFound.class);
 
 Jauter ignores slashes at both ends, these are the same:
