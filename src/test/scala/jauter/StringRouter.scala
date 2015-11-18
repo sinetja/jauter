@@ -30,5 +30,6 @@ object StringMethodRouter {
     .DELETE   ("/articles/:id",         "delete")
     .ANY      ("/any",                  "any")
     .GET      ("/download/:*",          "download")
+    .GET      ("/upload/:*",            "upload")
     .notFound ("404")
 }

@@ -41,6 +41,11 @@ class RoutingSpec extends FlatSpec with Matchers {
     routed.params.get("*") should be ("foo/bar.png")
   }
 
+  "A router" should "handle splat in multiple patterns" in {
+    val routed = router.route(Method.GET, "/upload/foo/bar.png")
+    routed.target   should be ("upload")
+  }
+
   "A router" should "handle subclasses" in {
     trait Action
     class Index extends Action

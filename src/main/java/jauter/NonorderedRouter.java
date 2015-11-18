@@ -106,7 +106,7 @@ public class NonorderedRouter<T> {
 
           if (currToken.length() > 0 && currToken.charAt(0) == ':') {
             params.put(currToken.substring(1), token);
-          } else if (!token.equals(token)) {
+          } else if (!currToken.equals(token)) {
             matched = false;
             break;
           }
